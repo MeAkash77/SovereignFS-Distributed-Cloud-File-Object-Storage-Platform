@@ -45,7 +45,7 @@ Every app you use — photo galleries, video platforms, online banking, hospital
 
 **SovereignFS is the "warehouse system" that solves this.** It spreads files across many ordinary computers, keeps track of where everything is, keeps backup copies automatically, and lets you add more space just by plugging in another machine.
 
-<img src="assets/library-analogy.svg" width="100%" alt="Library analogy: You → Front Desk → The Map → Shelves"/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/library-analogy.svg" width="100%" alt="Library analogy: You → Front Desk → The Map → Shelves"/>
 
 **Why "Sovereign"?** Because **you own the system**. It runs on your own servers, your own Kubernetes cluster, or any cloud — no vendor lock-in, and your data never has to leave infrastructure you control.
 
