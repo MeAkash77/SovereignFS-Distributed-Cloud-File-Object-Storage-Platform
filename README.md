@@ -109,7 +109,7 @@ Every app you use — photo galleries, video platforms, online banking, hospital
 
 ## 🏗️ Architecture
 
-<img src="assets/architecture-flow.svg" width="100%" alt="Animated architecture diagram"/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/architecture-flow.svg" width="100%" alt="Animated architecture diagram"/>
 
 SovereignFS has three building blocks. Each does one job, which is why it scales so well:
 
