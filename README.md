@@ -103,7 +103,7 @@ Every app you use — photo galleries, video platforms, online banking, hospital
 
 ### ☁️ Smart storage lifecycle
 
-<img src="assets/tiering-lifecycle.svg" width="100%" alt="Hot, warm, and cold storage lifecycle"/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/tiering-lifecycle.svg" width="100%" alt="Hot, warm, and cold storage lifecycle"/>
 
 <img src="assets/divider.svg" width="100%" alt=""/>
 
