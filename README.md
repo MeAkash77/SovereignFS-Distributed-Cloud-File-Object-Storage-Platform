@@ -304,7 +304,7 @@ SovereignFS/
 
 ## 🙏 Acknowledgements & lineage
 
-SovereignFS is built on top of the open-source **[SeaweedFS](https://github.com/seaweedfs/seaweedfs)** engine created by Chris Lu and contributors, whose design draws on Facebook's *Haystack* and *f4* papers. All upstream code remains under the **Apache License 2.0**; the original copyright and license notices are preserved in [`LICENSE`](LICENSE). Credit to the upstream community for the core engine.
+SovereignFS is built on top of the open-source **[Akash](https://github.com/MeAkash77)** engine created by Chris Lu and contributors, whose design draws on Facebook's *Haystack* and *f4* papers. All upstream code remains under the **Apache License 2.0**; the original copyright and license notices are preserved in [`LICENSE`](LICENSE). Credit to the upstream community for the core engine.
 
 ## 📄 License
 
