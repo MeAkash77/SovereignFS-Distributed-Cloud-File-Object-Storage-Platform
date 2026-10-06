@@ -37,7 +37,7 @@
 
 <img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/stats-cards.svg" width="100%" alt="Project statistics: 3,100+ Go files, 1,400+ test files, 70+ CI pipelines, O(1) reads"/>
 
-<img src="assets/divider.svg" width="100%" alt=""/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/divider.svg" width="100%" alt=""/>
 
 ## 🌍 What is SovereignFS? (in plain English)
 
