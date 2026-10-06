@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SovereignFS — Distributed Cloud File & Object Storage Platform</title>
+<meta name="description" content="SovereignFS — an engineering portfolio for a distributed cloud file and object storage platform built around scalable volume servers, S3 and POSIX access, direct reads, replication, erasure coding and cloud tiering.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030509;--bg2:#070c13;--panel:#0a111a;--panel2:#0d1722;--line:#1b2c3d;
+  --text:#f0f7ff;--muted:#91a5ba;--dim:#5e7389;--cyan:#52dcff;--green:#62f4ae;
+  --purple:#9b86ff;--amber:#ffc56d;--red:#ff6179;--max:1440px;--radius:28px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:
+radial-gradient(1000px 650px at 15% -5%,rgba(82,220,255,.10),transparent 65%),
+radial-gradient(1000px 700px at 90% 10%,rgba(155,134,255,.10),transparent 65%),
+linear-gradient(#030509,#050811 48%,#030509);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:50px 50px;mask-image:linear-gradient(to bottom,black,transparent 75%);z-index:-1}
+a{text-decoration:none;color:inherit}button{font:inherit}.mono{font-family:"DM Mono",monospace}.wrap{width:min(var(--max),calc(100% - 48px));margin:auto}
+.nav{height:82px;position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;background:rgba(3,5,9,.72);backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-inner{width:min(var(--max),calc(100% - 48px));margin:auto;display:flex;align-items:center;justify-content:space-between;gap:25px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:16px;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border:1px solid rgba(82,220,255,.55);border-radius:11px;position:relative;box-shadow:0 0 32px rgba(82,220,255,.16)}.brand-mark i{position:absolute;width:12px;height:12px;border:1px solid var(--cyan);border-radius:50%;left:10px}.brand-mark i:first-child{top:5px}.brand-mark i:last-child{bottom:5px}.brand-mark:after{content:"";position:absolute;left:16px;top:14px;height:7px;border-left:1px solid var(--cyan)}
+.navlinks{display:flex;gap:26px;color:#8095aa;font-size:13px}.navlinks a:hover{color:#fff}.nav-actions{display:flex;gap:9px}.nav-pill{border:1px solid #263c50;background:#08101a;color:#dff8ff;padding:10px 14px;border-radius:999px;cursor:pointer}.nav-pill.primary{background:#eafaff;color:#061019;border-color:#eafaff}
+.hero{min-height:100vh;padding:145px 0 80px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:65px;position:relative}.hero-copy{padding-bottom:25px}.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 18px var(--green);animation:pulse 1.5s infinite}@keyframes pulse{50%{opacity:.35;transform:scale(.65)}}
+h1{font-size:clamp(58px,7.2vw,112px);line-height:.9;letter-spacing:-.075em;margin:24px 0 28px;max-width:850px}.gradient{background:linear-gradient(110deg,#fff 15%,#b9f1ff 47%,#9b86ff 85%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero-copy>p{font-size:19px;line-height:1.8;color:#9eb0c3;max-width:730px;margin:0 0 34px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.btn{border-radius:14px;padding:14px 20px;font-weight:800;cursor:pointer;transition:.2s;border:1px solid transparent}.btn:hover{transform:translateY(-3px)}.btn-primary{background:#effbff;color:#061019;box-shadow:0 12px 45px rgba(82,220,255,.15)}.btn-secondary{background:#09121c;border-color:#284054;color:#dce9f6}.hero-note{display:flex;gap:20px;flex-wrap:wrap;margin-top:35px;color:#60758b;font:10px "DM Mono";letter-spacing:.08em}
+.hero-visual{height:min(760px,74vh);min-height:590px;border:1px solid #203447;border-radius:34px;background:radial-gradient(circle at 50% 40%,rgba(82,220,255,.07),transparent 42%),#060b12;overflow:hidden;position:relative;box-shadow:0 40px 120px rgba(0,0,0,.45),inset 0 0 90px rgba(82,220,255,.025)}#hero3d{width:100%;height:100%;display:block}.visual-top,.visual-bottom{position:absolute;left:20px;right:20px;display:flex;justify-content:space-between;pointer-events:none}.visual-top{top:18px}.visual-bottom{bottom:17px;align-items:end}.micro{font:10px "DM Mono";color:#6e8499;letter-spacing:.1em;text-transform:uppercase}.status{color:var(--green);display:flex;align-items:center;gap:7px}.scan{position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.3;animation:scan 5s linear infinite}@keyframes scan{to{transform:translateY(760px)}}
+.section{padding:145px 0}.section-head{display:grid;grid-template-columns:1fr .75fr;gap:60px;align-items:end;margin-bottom:45px}.kicker{font:800 11px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan)}h2{font-size:clamp(44px,5.6vw,82px);line-height:.94;letter-spacing:-.065em;margin:12px 0 0}.lead{color:#8297ac;line-height:1.85;font-size:16px;margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#182735;border:1px solid #1b2d3e;border-radius:23px;overflow:hidden}.stat{background:#070d15;padding:32px 28px;min-height:150px}.stat b{display:block;font-size:38px;letter-spacing:-.05em}.stat span{display:block;color:#637990;font:10px "DM Mono";text-transform:uppercase;letter-spacing:.11em;margin-top:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{border:1px solid #1b2d3e;border-radius:var(--radius);background:linear-gradient(145deg,rgba(13,23,35,.9),rgba(5,9,15,.94));padding:30px;position:relative;overflow:hidden;min-height:250px}.card:before{content:"";position:absolute;width:260px;height:180px;right:-120px;bottom:-100px;background:radial-gradient(circle,rgba(82,220,255,.12),transparent 70%)}.card .num{font:11px "DM Mono";color:#5d748b}.card h3{font-size:22px;letter-spacing:-.03em;margin:24px 0 10px}.card p{font-size:14px;line-height:1.75;color:#8499ae;margin:0}.tags{margin-top:18px}.tag{display:inline-block;border:1px solid #263b50;border-radius:999px;padding:6px 9px;color:#8298ad;font:9px "DM Mono";margin:3px}
+.arch-shell{border:1px solid #1d3245;border-radius:34px;overflow:hidden;background:#050a11;box-shadow:0 35px 100px rgba(0,0,0,.3)}.arch-head{padding:20px 24px;border-bottom:1px solid #172736;display:flex;justify-content:space-between;align-items:center}.arch-head strong{font-size:13px}.arch-head span{font:10px "DM Mono";color:#688097}.arch{min-height:720px;position:relative;padding:45px;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:50px 50px;overflow:hidden}.arch svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.arch-node{position:absolute;border:1px solid #29445b;border-radius:19px;background:rgba(7,15,24,.94);padding:18px;box-shadow:0 18px 55px rgba(0,0,0,.25),inset 0 0 30px rgba(82,220,255,.025);transition:.25s;z-index:2}.arch-node:hover{border-color:var(--cyan);transform:translateY(-4px)}.arch-node strong{font-size:14px}.arch-node small{display:block;color:#70869b;line-height:1.55;margin-top:8px;font-size:11px}.n-client{top:48px;left:50%;transform:translateX(-50%);width:min(520px,65%)}.n-master{left:7%;top:44%;width:200px}.n-filer{left:50%;top:43%;transform:translateX(-50%);width:230px}.n-vol{right:5%;top:30%;width:230px}.n-cloud{left:50%;bottom:45px;transform:translateX(-50%);width:330px}.vol-list{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}.vol-list i{font-style:normal;border:1px solid #22384b;border-radius:9px;padding:8px;text-align:center;font:9px "DM Mono";color:#7790a7}.signal{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 22px var(--cyan);z-index:3;animation:signalMove 3.2s linear infinite}@keyframes signalMove{0%{opacity:0;transform:translate(0,0)}12%{opacity:1}50%{opacity:1}100%{opacity:0;transform:translate(250px,180px)}}
+.demo-wrap{border:1px solid #27445a;border-radius:34px;overflow:hidden;background:#060b12;box-shadow:0 40px 110px rgba(0,0,0,.42)}.demo-head{padding:20px 24px;border-bottom:1px solid #172a3a;display:flex;justify-content:space-between;align-items:center}.demo-head strong{font-size:13px;letter-spacing:.03em}.demo-state{font:10px "DM Mono";color:#64f2ae}.demo-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;min-height:730px}.demo-canvas{display:block;width:100%;height:730px;background:radial-gradient(circle at 50% 50%,rgba(82,220,255,.05),transparent 50%)}.controls{border-left:1px solid #172a3a;background:rgba(5,9,15,.82);padding:24px}.control-group{padding:0 0 23px;margin-bottom:22px;border-bottom:1px solid #172635}.control-group:last-child{border:0}.control-label{font:800 10px Inter;letter-spacing:.13em;text-transform:uppercase;color:#637a90;margin-bottom:12px}.scenario{width:100%;display:flex;align-items:center;gap:10px;border:1px solid #263c50;background:#09131e;color:#dceaf6;border-radius:12px;padding:12px;margin-top:8px;text-align:left;cursor:pointer;transition:.18s}.scenario:hover{border-color:#547891;transform:translateX(2px)}.scenario.active{border-color:var(--cyan);background:rgba(82,220,255,.07);box-shadow:0 0 0 1px rgba(82,220,255,.1) inset}.metric-row{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0}.metric-row span{color:#6d8298;font-size:11px}.metric-row b{font-size:21px}.meter{height:5px;background:#142332;border-radius:99px;overflow:hidden}.meter i{display:block;height:100%;width:72%;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width .5s}.eventlog{font:10px "DM Mono";line-height:1.85;color:#7890a6;max-height:180px;overflow:auto}.eventlog b{color:var(--green)}.reset{width:100%;border:1px solid #263b4e;background:#0b141f;color:#9cb0c2;border-radius:10px;padding:10px;cursor:pointer}
+.flow-section{display:grid;grid-template-columns:.8fr 1.2fr;gap:70px;align-items:center}.flow-copy p{color:#8297ac;line-height:1.8}.flow-list{margin-top:25px;display:grid;gap:10px}.flow-item{display:flex;gap:13px;align-items:center;border:1px solid #1b2d3e;border-radius:14px;background:#080f17;padding:14px}.flow-item b{font-size:13px}.flow-item span{font:9px "DM Mono";color:#688097;margin-left:auto}.flow-visual{height:620px;border:1px solid #1d3245;border-radius:30px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(82,220,255,.08),transparent 42%),#050a10}.flow-visual canvas{width:100%;height:100%;display:block}
+.feature-table{border:1px solid #1b2d3e;border-radius:23px;overflow:hidden}.feature-row{display:grid;grid-template-columns:1.1fr 1fr 1fr;border-bottom:1px solid #172736}.feature-row:last-child{border:0}.feature-row>div{padding:20px 22px;color:#8599ae;font-size:13px;line-height:1.6}.feature-row>div:first-child{color:#edf5ff;font-weight:700}.feature-row.head>div{font:800 10px Inter;text-transform:uppercase;letter-spacing:.1em;color:#647b91;background:#080f17}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.step{position:relative;border:1px solid #1a2c3d;border-radius:22px;background:#080f17;padding:24px;min-height:220px}.step:before{content:"";position:absolute;left:24px;top:-1px;width:40px;height:2px;background:var(--cyan);box-shadow:0 0 15px rgba(82,220,255,.4)}.step .num{font:10px "DM Mono";color:#587189}.step h3{font-size:18px;margin:25px 0 10px}.step p{color:#8195a9;font-size:13px;line-height:1.7;margin:0}
+.benchmark{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;border:1px solid #1b2d3e;border-radius:24px;overflow:hidden;background:#1b2d3e}.bench{background:#070d14;padding:35px 28px}.bench b{font-size:40px;letter-spacing:-.06em}.bench span{display:block;margin-top:9px;color:#637a90;font:10px "DM Mono";text-transform:uppercase;letter-spacing:.1em}.qualification{color:#5d7287;font:10px "DM Mono";line-height:1.8;margin-top:14px}
+.cta{padding:80px;border:1px solid #25445a;border-radius:34px;background:radial-gradient(circle at 80% 20%,rgba(155,134,255,.13),transparent 30%),radial-gradient(circle at 15% 80%,rgba(82,220,255,.12),transparent 35%),#070d15;text-align:center}.cta h2{max-width:850px;margin:0 auto 20px}.cta p{max-width:680px;margin:0 auto 27px;color:#8297ab;line-height:1.8}
+footer{padding:50px 0 80px;border-top:1px solid #142332;color:#5e748a;font:10px "DM Mono";display:flex;justify-content:space-between;gap:20px}
+.modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.78);backdrop-filter:blur(18px);display:none;align-items:center;justify-content:center;padding:25px}.modal.open{display:flex}.modal-box{width:min(1250px,100%);max-height:92vh;overflow:auto;border:1px solid #2a465d;border-radius:30px;background:#060b12;box-shadow:0 50px 150px #000}.modal-head{padding:22px 25px;border-bottom:1px solid #172a3a;display:flex;align-items:center;justify-content:space-between}.modal-head h3{margin:5px 0 0;font-size:27px}.close{border:1px solid #2a4054;background:#0b1520;color:#cfe0ef;border-radius:11px;padding:9px 13px;cursor:pointer}.modal-content{display:grid;grid-template-columns:1.35fr .65fr;min-height:650px}.modal-canvas{width:100%;height:650px;display:block}.modal-copy{padding:26px;border-left:1px solid #172a3a}.explain{border:1px solid #1b2e40;border-radius:17px;background:#09111a;padding:18px;margin-bottom:12px}.explain h4{margin:0 0 7px}.explain p{margin:0;color:#8196aa;font-size:12px;line-height:1.7}.toast{position:fixed;right:22px;bottom:22px;z-index:300;border:1px solid #2c5068;background:#09131d;color:#dff4ff;border-radius:13px;padding:13px 16px;font:11px "DM Mono";box-shadow:0 15px 50px rgba(0,0,0,.4);opacity:0;transform:translateY(12px);transition:.25s}.toast.show{opacity:1;transform:none}
+@media(max-width:1050px){.hero{grid-template-columns:1fr}.hero-visual{height:650px}.section-head{grid-template-columns:1fr}.demo-grid{grid-template-columns:1fr}.controls{border-left:0;border-top:1px solid #172a3a}.grid4{grid-template-columns:1fr 1fr}.timeline{grid-template-columns:1fr 1fr}.flow-section{grid-template-columns:1fr}.modal-content{grid-template-columns:1fr}.modal-copy{border-left:0;border-top:1px solid #172a3a}}
+@media(max-width:720px){.wrap,.nav-inner{width:min(100% - 28px,1440px)}.nav{height:68px}.navlinks{display:none}.nav-actions .nav-pill:first-child{display:none}.hero{padding-top:110px}.hero-visual{height:520px;min-height:520px}.section{padding:95px 0}.stats,.grid3,.grid4,.benchmark{grid-template-columns:1fr}.arch{min-height:780px;padding:20px}.n-client{width:90%;top:35px}.n-master{left:5%;top:33%;width:42%}.n-filer{left:auto;right:5%;top:33%;transform:none;width:42%}.n-vol{left:5%;right:5%;top:55%;width:auto}.n-cloud{width:90%;bottom:35px}.hero-copy>p{font-size:16px}.cta{padding:45px 22px}.flow-visual{height:480px}.demo-canvas{height:600px}.demo-grid{min-height:600px}.modal-canvas{height:450px}.modal-content{min-height:auto}h1{font-size:clamp(50px,15vw,82px)}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#home"><span class="brand-mark"><i></i><i></i></span>SovereignFS</a>
+    <nav class="navlinks">
+      <a href="#why">Why</a><a href="#architecture">Architecture</a><a href="#demo">Live Demo</a><a href="#engineering">Engineering</a><a href="#evidence">Evidence</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="scrollToId('architecture')">Architecture</button>
+      <button class="nav-pill primary" onclick="openWalkthrough()">Open Demo ↗</button>
+    </div>
+  </div>
+</header>
+
+<main id="home">
+<section class="hero wrap">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="live-dot"></span>Distributed storage · Go · cloud native</div>
+    <h1>Storage that <span class="gradient">scales without becoming opaque.</span></h1>
+    <p>SovereignFS is a distributed cloud file and object storage platform engineered for S3 object storage and POSIX-style file access, with scalable volume servers, direct data-plane reads, replication, erasure coding, cloud tiering and fault-tolerant operation.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="openWalkthrough()">▶ See the system work</button>
+      <button class="btn btn-secondary" onclick="scrollToId('demo')">Explore simulator ↓</button>
+    </div>
+    <div class="hero-note"><span>GO</span><span>DISTRIBUTED SYSTEMS</span><span>S3</span><span>POSIX</span><span>DOCKER</span><span>KUBERNETES</span></div>
+  </div>
+  <div class="hero-visual">
+    <canvas id="hero3d"></canvas>
+    <div class="scan"></div>
+    <div class="visual-top"><span class="micro">LIVE CLUSTER / 3D VIEW</span><span class="micro status"><i class="live-dot"></i> HEALTHY</span></div>
+    <div class="visual-bottom"><span class="micro">CONTROL PLANE → DATA PLANE</span><span class="micro">O(1) BLOB ACCESS</span></div>
+  </div>
+</section>
+
+<section class="section wrap" id="why">
+  <div class="section-head"><div><div class="kicker">01 / The system in one view</div><h2>Massive storage.<br>Simple mental model.</h2></div><p class="lead">The site is designed so a non-technical visitor first understands the journey of a file, then a recruiter sees the distributed-systems decisions behind it.</p></div>
+  <div class="stats">
+    <div class="stat"><b>2.4B</b><span>demo objects</span></div><div class="stat"><b>6+</b><span>volume servers</span></div><div class="stat"><b>0.3ms</b><span>documented read p50*</span></div><div class="stat"><b>3.30</b><span>GiB/s mixed S3*</span></div>
+  </div>
+  <div style="height:18px"></div>
+  <div class="grid3">
+    <article class="card"><span class="num">01</span><h3>Huge file counts</h3><p>Volumes keep the control plane from tracking every object individually. Volume-level placement keeps the architecture manageable as the number of files grows.</p><div class="tags"><span class="tag">O(1) lookup</span><span class="tag">small files</span></div></article>
+    <article class="card"><span class="num">02</span><h3>Horizontal scale</h3><p>Add volume servers for capacity and scale stateless access layers independently. The application-facing interfaces do not need to change when the storage cluster grows.</p><div class="tags"><span class="tag">scale-out</span><span class="tag">stateless gateways</span></div></article>
+    <article class="card"><span class="num">03</span><h3>Failure is expected</h3><p>Replication, erasure coding, repair and topology-aware placement make infrastructure failure part of the design rather than an exceptional event.</p><div class="tags"><span class="tag">replication</span><span class="tag">EC</span><span class="tag">repair</span></div></article>
+  </div>
+</section>
+
+<section class="section wrap" id="architecture">
+  <div class="section-head"><div><div class="kicker">02 / Architecture</div><h2>One storage fabric.<br>Many ways in.</h2></div><p class="lead">The control plane knows where data lives. The data plane actually serves the bytes. The Filer adds filesystem semantics, while gateways expose familiar application interfaces.</p></div>
+  <div class="arch-shell">
+    <div class="arch-head"><strong>SOVEREIGNFS / DISTRIBUTED STORAGE FABRIC</strong><span>CONTROL PLANE + DATA PLANE</span></div>
+    <div class="arch" id="arch">
+      <svg viewBox="0 0 1400 720" preserveAspectRatio="none">
+        <defs><linearGradient id="wire" x1="0" x2="1"><stop stop-color="#52dcff" stop-opacity=".05"/><stop offset=".5" stop-color="#52dcff" stop-opacity=".65"/><stop offset="1" stop-color="#9b86ff" stop-opacity=".25"/></linearGradient></defs>
+        <path d="M700 130 L700 300 M300 350 L585 350 M815 350 L1100 350 M700 430 L700 625" fill="none" stroke="url(#wire)" stroke-width="2" stroke-dasharray="7 8"/>
+      </svg>
+      <div class="signal" style="left:49%;top:18%"></div>
+      <div class="arch-node n-client"><strong>Access Layer</strong><small>S3 object API · POSIX / FUSE · REST · WebDAV</small></div>
+      <div class="arch-node n-master"><strong>Master / Raft</strong><small>Volume placement, file IDs, topology and coordination. Kept out of the hot read path.</small></div>
+      <div class="arch-node n-filer"><strong>Filer Layer</strong><small>Directories, file metadata, manifests and filesystem semantics.</small></div>
+      <div class="arch-node n-vol"><strong>Volume Servers</strong><small>Actual blob storage across NVMe, SSD and HDD-backed volumes.</small><div class="vol-list"><i>V01</i><i>V02</i><i>V03</i><i>V04</i><i>V05</i><i>V06</i></div></div>
+      <div class="arch-node n-cloud"><strong>Cloud Tier</strong><small>Transparent caching / tiering for colder data and capacity extension.</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap" id="demo">
+  <div class="section-head"><div><div class="kicker">03 / Live browser simulation</div><h2>Click the system.<br>Watch it react.</h2></div><p class="lead">This is a visual simulation, not a fake production cluster. It communicates the real architecture: request routing, direct reads, scale-out, failure and recovery.</p></div>
+  <div class="demo-wrap">
+    <div class="demo-head"><strong>LIVE STORAGE CONTROL ROOM</strong><span class="demo-state" id="demoState">● READY / SIMULATION MODE</span></div>
+    <div class="demo-grid">
+      <canvas id="demoCanvas" class="demo-canvas"></canvas>
+      <aside class="controls">
+        <div class="control-group">
+          <div class="control-label">Run a scenario</div>
+          <button class="scenario" data-mode="upload" onclick="runScenario('upload')">↑ <span><b>Upload an object</b><br><small>write + placement + replication</small></span></button>
+          <button class="scenario" data-mode="read" onclick="runScenario('read')">↓ <span><b>Read an object</b><br><small>cached map + direct volume read</small></span></button>
+          <button class="scenario" data-mode="scale" onclick="runScenario('scale')">＋ <span><b>Scale out</b><br><small>add a volume server</small></span></button>
+          <button class="scenario" data-mode="fail" onclick="runScenario('fail')">⚠ <span><b>Fail a storage node</b><br><small>observe resilient routing</small></span></button>
+          <button class="scenario" data-mode="repair" onclick="runScenario('repair')">↻ <span><b>Recover the node</b><br><small>return to healthy state</small></span></button>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Cluster telemetry</div>
+          <div class="metric-row"><span>Objects</span><b id="mObjects">2.4B</b></div>
+          <div class="metric-row"><span>Volume servers</span><b id="mServers">6</b></div>
+          <div class="metric-row"><span>Healthy nodes</span><b id="mHealthy">6 / 6</b></div>
+          <div class="metric-row"><span>Request latency</span><b id="mLatency">0.7 ms</b></div>
+          <div class="meter"><i id="loadbar"></i></div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Event stream</div>
+          <div class="eventlog" id="eventlog"></div>
+        </div>
+        <button class="reset" onclick="resetDemo()">Reset simulation</button>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap">
+  <div class="flow-section">
+    <div class="flow-copy">
+      <div class="kicker">04 / Request journey</div><h2>See what happens to a file.</h2>
+      <p>A recruiter should be able to understand the data path without knowing distributed storage terminology. Select a journey and the visualizer shows the important system boundary.</p>
+      <div class="flow-list">
+        <div class="flow-item"><b>Upload</b><span>S3 → Filer → Volume</span></div>
+        <div class="flow-item"><b>Read</b><span>Client → direct Volume</span></div>
+        <div class="flow-item"><b>Failure</b><span>Replica → healthy node</span></div>
+        <div class="flow-item"><b>Scale</b><span>new server → capacity</span></div>
+      </div>
+    </div>
+    <div class="flow-visual"><canvas id="flowCanvas"></canvas></div>
+  </div>
+</section>
+
+<section class="section wrap" id="engineering">
+  <div class="section-head"><div><div class="kicker">05 / Engineering decisions</div><h2>What makes the<br>architecture interesting.</h2></div><p class="lead">These are the points to discuss in a technical interview. The website explains not only what exists, but why the boundaries matter.</p></div>
+  <div class="grid4">
+    <article class="card"><span class="num">A</span><h3>O(1) blob access</h3><p>Compact volume indexes and volume-level mapping keep lookup work small while avoiding a giant per-object control-plane index.</p></article>
+    <article class="card"><span class="num">B</span><h3>Direct data path</h3><p>Clients can cache mappings and reach volume servers directly, reducing unnecessary control-plane work during reads.</p></article>
+    <article class="card"><span class="num">C</span><h3>Durability choices</h3><p>Replication favors straightforward redundancy and performance; erasure coding improves capacity efficiency for suitable workloads.</p></article>
+    <article class="card"><span class="num">D</span><h3>Cloud native</h3><p>Docker and Kubernetes deployment paths make the system operable as a real cluster rather than only a local development process.</p></article>
+  </div>
+  <div style="height:18px"></div>
+  <div class="feature-table">
+    <div class="feature-row head"><div>Capability</div><div>What it means</div><div>Why recruiters should care</div></div>
+    <div class="feature-row"><div>S3 object storage</div><div>Applications can use familiar bucket/object semantics.</div><div>Shows API compatibility and cloud-storage understanding.</div></div>
+    <div class="feature-row"><div>POSIX / FUSE access</div><div>Files and directories can be presented like a filesystem.</div><div>Shows separation between storage engine and access model.</div></div>
+    <div class="feature-row"><div>Replication</div><div>Data can be maintained across multiple storage locations.</div><div>Shows practical durability engineering.</div></div>
+    <div class="feature-row"><div>Erasure coding</div><div>Warm/cold data can trade compute for storage efficiency.</div><div>Shows awareness of large-scale storage economics.</div></div>
+    <div class="feature-row"><div>Cloud tiering</div><div>Colder data can move toward cloud-backed storage.</div><div>Connects the project to real infrastructure architectures.</div></div>
+  </div>
+</section>
+
+<section class="section wrap" id="evidence">
+  <div class="section-head"><div><div class="kicker">06 / Evidence</div><h2>Performance you can<br>talk about honestly.</h2></div><p class="lead">Use benchmark numbers as evidence, not marketing claims. The figures below are presented with their repository test context.</p></div>
+  <div class="benchmark">
+    <div class="bench"><b>15,708</b><span>1KB writes / sec</span></div>
+    <div class="bench"><b>47,019</b><span>random reads / sec</span></div>
+    <div class="bench"><b>0.3ms</b><span>read p50</span></div>
+    <div class="bench"><b>3.30</b><span>GiB/s mixed S3</span></div>
+  </div>
+  <div class="qualification">* Documented repository benchmark context: 1M × 1KB files, concurrency 16, local SSD/single-machine tests for the file workload; mixed S3 throughput is from a local cluster configuration. Hardware, topology and concurrency materially affect results.</div>
+</section>
+
+<section class="section wrap">
+  <div class="section-head"><div><div class="kicker">07 / Build story</div><h2>From requirement<br>to distributed system.</h2></div><p class="lead">A recruiter can scan this sequence in seconds. A technical interviewer can use each step as an entry point for deeper questions.</p></div>
+  <div class="timeline">
+    <article class="step"><span class="num">01</span><h3>Problem</h3><p>Serve huge file/object workloads without making metadata or coordination the bottleneck.</p></article>
+    <article class="step"><span class="num">02</span><h3>Separation</h3><p>Split placement, metadata, access protocols and physical blob storage into distinct layers.</p></article>
+    <article class="step"><span class="num">03</span><h3>Scale</h3><p>Grow capacity by adding volume servers and scale stateless access layers independently.</p></article>
+    <article class="step"><span class="num">04</span><h3>Survive</h3><p>Use redundancy, repair and tiering so failures and growth are expected system states.</p></article>
+    <article class="step"><span class="num">05</span><h3>Operate</h3><p>Package the architecture for Docker/Kubernetes and validate it with tests and benchmarks.</p></article>
+  </div>
+</section>
+
+<section class="section wrap">
+  <div class="cta">
+    <div class="kicker">08 / The 60-second pitch</div>
+    <h2>SovereignFS turns distributed storage internals into a system people can reason about.</h2>
+    <p>Click through the simulator, then inspect the architecture. The goal is simple: a non-technical visitor understands the product, while a systems recruiter sees the distributed-design decisions underneath.</p>
+    <button class="btn btn-primary" onclick="openWalkthrough()">▶ Run the guided walkthrough</button>
+  </div>
+</section>
+</main>
+
+<footer class="wrap"><span>© SovereignFS · Distributed Cloud File & Object Storage Platform</span><span>GO · DISTRIBUTED SYSTEMS · S3 · POSIX · KUBERNETES</span></footer>
+
+<div class="modal" id="walkModal" aria-hidden="true">
+  <div class="modal-box">
+    <div class="modal-head"><div><div class="kicker">Guided product walkthrough</div><h3>SovereignFS in 60 seconds</h3></div><button class="close" onclick="closeWalkthrough()">Close ×</button></div>
+    <div class="modal-content">
+      <canvas id="modalCanvas" class="modal-canvas"></canvas>
+      <div class="modal-copy">
+        <div class="explain"><h4>01 · Upload</h4><p>Your application enters through S3 or a filesystem interface. The metadata/control layers determine where the object belongs.</p></div>
+        <div class="explain"><h4>02 · Store</h4><p>Volume servers hold the actual blob data. Replication or erasure coding can provide durability depending on policy.</p></div>
+        <div class="explain"><h4>03 · Read</h4><p>After placement information is known, the client can take the direct data path to the relevant volume server.</p></div>
+        <div class="explain"><h4>04 · Fail</h4><p>If a storage node disappears, the system can use healthy replicas or repair mechanisms rather than treating one node as the whole system.</p></div>
+        <div class="explain"><h4>05 · Scale</h4><p>Add volume servers for more storage capacity. The access model stays the same while the cluster expands.</p></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="closeWalkthrough();scrollToId('demo')">Try the live simulator ↓</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+const $ = (s)=>document.querySelector(s);
+const $$ = (s)=>Array.from(document.querySelectorAll(s));
+window.scrollToId = id => document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"});
+
+function toast(message){
+  const t=$("#toast"); t.textContent=message; t.classList.add("show");
+  clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
+}
+window.openWalkthrough=()=>{$("#walkModal").classList.add("open");$("#walkModal").setAttribute("aria-hidden","false");initModal3D()};
+window.closeWalkthrough=()=>{$("#walkModal").classList.remove("open");$("#walkModal").setAttribute("aria-hidden","true")};
+$("#walkModal").addEventListener("click",e=>{if(e.target===$("#walkModal"))closeWalkthrough()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeWalkthrough()});
+
+/* ---------- Reliable Three.js engine with 2D fallback ---------- */
+function makeThreeScene(canvas, kind){
+  if(!window.THREE) return null;
+  try{
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:"high-performance"});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(42,1,.1,100);
+    camera.position.set(0,1.6,8.8);
+    scene.add(new THREE.AmbientLight(0xaed7ee,.9));
+    const light=new THREE.PointLight(0x52dcff,18,25);light.position.set(4,5,5);scene.add(light);
+    const purple=new THREE.PointLight(0x9b86ff,12,22);purple.position.set(-4,-2,4);scene.add(purple);
+    const group=new THREE.Group();scene.add(group);
+    const baseMat=new THREE.MeshStandardMaterial({color:0x123047,metalness:.55,roughness:.25,emissive:0x06141f,emissiveIntensity:.65});
+    const hotMat=new THREE.MeshStandardMaterial({color:0x16475d,metalness:.5,roughness:.22,emissive:0x0a4a63,emissiveIntensity:1.2});
+    const nodes=[];
+    if(kind==="hero"){
+      const coords=[[-2.9,1.05,0],[0,1.05,0],[2.9,1.05,0],[-2.9,-.7,0],[0,-.7,0],[2.9,-.7,0]];
+      coords.forEach((p,i)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1.35,.75,1.15),i===1?hotMat:baseMat);m.position.set(...p);group.add(m);nodes.push(m)});
+      const core=new THREE.Mesh(new THREE.IcosahedronGeometry(1.0,2),hotMat);core.position.set(0,.2,.2);group.add(core);
+      for(let i=0;i<3;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(2.15+i*.45,.013,8,140),new THREE.MeshBasicMaterial({color:i===1?0x9b86ff:0x52dcff,transparent:true,opacity:.5}));r.rotation.x=1.05;group.add(r)}
+      const particles=new THREE.Group();
+      for(let i=0;i<120;i++){const a=Math.random()*Math.PI*2,rad=2.1+Math.random()*2.8;const m=new THREE.Mesh(new THREE.SphereGeometry(.018,5,5),new THREE.MeshBasicMaterial({color:i%4===0?0x9b86ff:0x52dcff,transparent:true,opacity:.55}));m.position.set(Math.cos(a)*rad,(Math.random()-.5)*3,Math.sin(a)*rad);particles.add(m)}
+      group.add(particles);
+    }else{
+      const coords=[[-2.3,0,0],[0,1.25,0],[0,-1.25,0],[2.3,0,0]];
+      coords.forEach((p,i)=>{const m=new THREE.Mesh(new THREE.IcosahedronGeometry(i===0?.62:.5,2),i===0?hotMat:baseMat);m.position.set(...p);group.add(m);nodes.push(m)});
+      [[0,1],[0,2],[1,3],[2,3]].forEach(e=>{const pts=[new THREE.Vector3(...coords[e[0]]),new THREE.Vector3(...coords[e[1]])];const g=new THREE.BufferGeometry().setFromPoints(pts);group.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0x52dcff,transparent:true,opacity:.45})))});
+      for(let i=0;i<35;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.025,5,5),new THREE.MeshBasicMaterial({color:0x52dcff}));m.position.set((Math.random()-.5)*5,(Math.random()-.5)*3.5,(Math.random()-.5)*1.5);group.add(m)}
+    }
+    function resize(){const r=canvas.getBoundingClientRect();if(r.width<2||r.height<2)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
+    function frame(t){resize();group.rotation.y=t*.00008;group.rotation.x=Math.sin(t*.00015)*.06;nodes.forEach((n,i)=>{n.position.y += Math.sin(t*.001+i)*.00035});renderer.render(scene,camera);requestAnimationFrame(frame)}
+    requestAnimationFrame(frame);
+    addEventListener("resize",resize);
+    return renderer;
+  }catch(err){return null}
+}
+
+function fallbackCanvas(canvas, type){
+  const ctx=canvas.getContext("2d"); if(!ctx)return;
+  function resize(){const r=canvas.getBoundingClientRect();canvas.width=Math.max(2,Math.floor(r.width*devicePixelRatio));canvas.height=Math.max(2,Math.floor(r.height*devicePixelRatio));ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+  addEventListener("resize",resize);resize();
+  function draw(t){
+    const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);
+    ctx.fillStyle="#050a11";ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle="rgba(82,220,255,.08)";ctx.lineWidth=1;
+    for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+    for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+    const cx=w/2,cy=h/2;
+    const pts=type==="hero"?[[-.55,-.3],[0,-.65],[.55,-.3],[-.55,.3],[0,.65],[.55,.3]]:[[-.42,0],[0,-.45],[0,.45],[.42,0]];
+    const scale=Math.min(w,h)*.38;
+    ctx.strokeStyle="rgba(82,220,255,.45)";ctx.lineWidth=2;
+    for(let i=0;i<pts.length-1;i++){ctx.beginPath();ctx.moveTo(cx+pts[i][0]*scale,cy+pts[i][1]*scale);ctx.lineTo(cx+pts[i+1][0]*scale,cy+pts[i+1][1]*scale);ctx.stroke()}
+    pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(cx+p[0]*scale,cy+p[1]*scale,18,0,Math.PI*2);ctx.fillStyle=i===0?"#16475d":"#0e2637";ctx.fill();ctx.strokeStyle="#52dcff";ctx.stroke()});
+    ctx.beginPath();ctx.arc(cx,cy,Math.min(w,h)*.23+Math.sin(t*.002)*4,0,Math.PI*2);ctx.strokeStyle="rgba(82,220,255,.25)";ctx.stroke();
+    requestAnimationFrame(draw);
+  }requestAnimationFrame(draw);
+}
+const heroCanvas=$("#hero3d"); if(!makeThreeScene(heroCanvas,"hero"))fallbackCanvas(heroCanvas,"hero");
+
+/* ---------- Main interactive storage simulator ---------- */
+const dc=$("#demoCanvas"), dctx=dc.getContext("2d");
+const state={objects:2.4,servers:6,healthy:6,latency:.7,load:72,failed:null,mode:"idle",packets:[],events:[]};
+function resizeDemo(){const r=dc.getBoundingClientRect();dc.width=Math.max(2,Math.floor(r.width*devicePixelRatio));dc.height=Math.max(2,Math.floor(r.height*devicePixelRatio));dctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+addEventListener("resize",resizeDemo);resizeDemo();
+function pos(){const w=dc.clientWidth,h=dc.clientHeight;const cols=Math.min(state.servers,6);return{
+ client:{x:w*.12,y:h*.5},filer:{x:w*.36,y:h*.5},master:{x:w*.34,y:h*.2},
+ volumes:Array.from({length:state.servers},(_,i)=>({x:w*.65+(i%3)*(w*.10),y:h*(.27+Math.floor(i/3)*.28)})),cloud:{x:w*.75,y:h*.87}}}
+function packet(a,b,color){state.packets.push({a,b,t:0,color})}
+function line(a,b,on=false){dctx.beginPath();dctx.moveTo(a.x,a.y);dctx.lineTo(b.x,b.y);dctx.strokeStyle=on?"rgba(82,220,255,.72)":"rgba(58,82,104,.42)";dctx.lineWidth=on?2:1;dctx.stroke()}
+function node(x,y,w,h,title,sub,active=false,fail=false){dctx.beginPath();dctx.roundRect(x-w/2,y-h/2,w,h,14);dctx.fillStyle=fail?"rgba(65,12,23,.95)":active?"rgba(11,43,57,.98)":"rgba(7,16,26,.96)";dctx.fill();dctx.strokeStyle=fail?"#ff6179":active?"#52dcff":"#294156";dctx.lineWidth=1;dctx.stroke();dctx.fillStyle=fail?"#ff91a0":"#eaf5ff";dctx.font="700 12px Inter";dctx.textAlign="center";dctx.fillText(title,x,y-2);dctx.fillStyle="#6e879d";dctx.font="9px 'DM Mono'";dctx.fillText(sub,x,y+14)}
+function drawDemo(t){
+  const w=dc.clientWidth,h=dc.clientHeight;dctx.clearRect(0,0,w,h);
+  dctx.fillStyle="#050a11";dctx.fillRect(0,0,w,h);dctx.strokeStyle="rgba(82,220,255,.045)";
+  for(let x=0;x<w;x+=40){dctx.beginPath();dctx.moveTo(x,0);dctx.lineTo(x,h);dctx.stroke()}for(let y=0;y<h;y+=40){dctx.beginPath();dctx.moveTo(0,y);dctx.lineTo(w,y);dctx.stroke()}
+  const p=pos();line(p.client,p.filer,state.mode==="upload"||state.mode==="read");line(p.filer,p.master,state.mode==="upload");
+  p.volumes.forEach((v,i)=>line(p.filer,v,state.mode!=="idle"&&i!==state.failed));
+  line(p.filer,p.cloud,state.mode==="cloud");
+  node(p.client.x,p.client.y,115,60,"APPLICATION","S3 / POSIX",state.mode!=="idle");
+  node(p.master.x,p.master.y,120,62,"MASTER","placement map",state.mode==="upload");
+  node(p.filer.x,p.filer.y,120,62,"FILER","metadata",state.mode==="upload"||state.mode==="read");
+  p.volumes.forEach((v,i)=>node(v.x,v.y,88,58,"VOLUME "+String(i+1).padStart(2,"0"),i===state.failed?"FAILED":"blob server",state.mode!=="idle"&&i!==state.failed,i===state.failed));
+  node(p.cloud.x,p.cloud.y,112,54,"CLOUD TIER","cold data",state.mode==="cloud");
+  state.packets.forEach(pk=>{pk.t+=.014;if(pk.t<1){const x=pk.a.x+(pk.b.x-pk.a.x)*pk.t,y=pk.a.y+(pk.b.y-pk.a.y)*pk.t;dctx.beginPath();dctx.arc(x,y,5,0,Math.PI*2);dctx.fillStyle=pk.color;dctx.shadowBlur=18;dctx.shadowColor=pk.color;dctx.fill();dctx.shadowBlur=0}});
+  state.packets=state.packets.filter(x=>x.t<1);
+  if(state.mode==="idle"&&Math.random()<.025){const v=p.volumes[Math.floor(Math.random()*p.volumes.length)];packet(p.filer,v,"#315a70")}
+  requestAnimationFrame(drawDemo);
+}
+function logEvent(text){state.events.unshift(text);state.events=state.events.slice(0,8);$("#eventlog").innerHTML=state.events.map(e=>"<b>●</b> "+e).join("<br>")}
+function metrics(){ $("#mObjects").textContent=state.objects.toFixed(1)+"B";$("#mServers").textContent=state.servers;$("#mHealthy").textContent=state.healthy+" / "+state.servers;$("#mLatency").textContent=state.latency.toFixed(1)+" ms";$("#loadbar").style.width=Math.min(100,state.load)+"%";$("#demoState").textContent="● "+(state.failed!==null?"DEGRADED / RECOVERY ACTIVE":state.mode==="idle"?"READY / SIMULATION MODE":state.mode.toUpperCase()+" / RUNNING");}
+function clearActive(){$$(".scenario").forEach(b=>b.classList.remove("active"))}
+window.runScenario=function(mode){
+  clearActive();document.querySelector('[data-mode="'+mode+'"]')?.classList.add("active");
+  state.mode=mode;const p=pos();
+  if(mode==="upload"){packet(p.client,p.filer,"#52dcff");setTimeout(()=>packet(p.filer,p.master,"#9b86ff"),220);p.volumes.slice(0,Math.min(3,p.volumes.length)).forEach((v,i)=>setTimeout(()=>packet(p.filer,v,"#62f4ae"),420+i*150));state.objects+=.1;state.latency=.8;state.load=Math.min(97,state.load+7);logEvent("Object accepted through S3 gateway");logEvent("Placement selected for volume servers")}
+  if(mode==="read"){const idx=state.failed===null?Math.floor(Math.random()*state.servers):0;const v=p.volumes[idx];packet(p.client,p.filer,"#52dcff");setTimeout(()=>packet(p.filer,v,"#52dcff"),250);setTimeout(()=>packet(v,p.client,"#62f4ae"),650);state.latency=.3;state.load=Math.min(92,state.load+2);logEvent("Cached volume map used");logEvent("Direct blob read completed")}
+  if(mode==="scale"){const old=state.servers;state.servers=Math.min(12,state.servers+1);state.healthy=state.servers;state.load=Math.max(45,state.load-9);state.latency=.6;logEvent("Volume server "+String(old+1).padStart(2,"0")+" joined cluster");logEvent("Capacity increased without gateway change")}
+  if(mode==="fail"){if(state.failed===null){state.failed=state.servers-1;state.healthy=Math.max(1,state.servers-1);state.latency=1.2;state.load=88;const v=p.volumes[state.failed];packet(p.filer,v,"#ff6179");logEvent("Volume server failure detected");logEvent("Reads routed to healthy storage nodes")}else{logEvent("Failure already simulated — use Recover")}}
+  if(mode==="repair"){if(state.failed!==null){const failed=state.failed;state.failed=null;state.healthy=state.servers;state.latency=.6;state.load=64;p.volumes.slice(0,3).forEach((v,i)=>setTimeout(()=>packet(v,p.filer,"#62f4ae"),i*170));logEvent("Failed node recovered");logEvent("Cluster returned to healthy state")}else logEvent("All storage nodes already healthy")}
+  metrics();toast(mode==="fail"?"Node failure simulated — traffic is rerouted.":mode==="scale"?"Scale-out complete — a new volume server joined.":mode==="repair"?"Recovery complete — cluster is healthy.":"Scenario running in the visual simulator.");
+  clearTimeout(window.__scenarioTimer);window.__scenarioTimer=setTimeout(()=>{state.mode="idle";clearActive();metrics()},3000);
+}
+window.resetDemo=function(){state.objects=2.4;state.servers=6;state.healthy=6;state.latency=.7;state.load=72;state.failed=null;state.mode="idle";state.packets=[];state.events=[];logEvent("Cluster initialized");logEvent("Volume map cached");logEvent("Ready for request");metrics();toast("Simulation reset.")};
+logEvent("Cluster initialized");logEvent("Volume map cached");logEvent("Ready for request");metrics();requestAnimationFrame(drawDemo);
+
+/* ---------- Request journey canvas ---------- */
+const fc=$("#flowCanvas"), fctx=fc.getContext("2d");
+function flowResize(){const r=fc.getBoundingClientRect();fc.width=Math.max(2,Math.floor(r.width*devicePixelRatio));fc.height=Math.max(2,Math.floor(r.height*devicePixelRatio));fctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}addEventListener("resize",flowResize);flowResize();
+function drawFlow(t){const w=fc.clientWidth,h=fc.clientHeight;fctx.clearRect(0,0,w,h);fctx.fillStyle="#050a10";fctx.fillRect(0,0,w,h);
+  const nodes=[{x:w*.18,y:h*.5,t:"CLIENT"},{x:w*.4,y:h*.5,t:"FILER"},{x:w*.63,y:h*.5,t:"VOLUME"},{x:w*.84,y:h*.5,t:"BLOB"}];
+  fctx.strokeStyle="rgba(82,220,255,.3)";fctx.lineWidth=2;for(let i=0;i<nodes.length-1;i++){fctx.beginPath();fctx.moveTo(nodes[i].x,nodes[i].y);fctx.lineTo(nodes[i+1].x,nodes[i+1].y);fctx.stroke()}
+  nodes.forEach((n,i)=>{fctx.beginPath();fctx.arc(n.x,n.y,34+Math.sin(t*.002+i)*2,0,Math.PI*2);fctx.fillStyle=i===2?"#12384a":"#0b1a26";fctx.fill();fctx.strokeStyle=i===2?"#52dcff":"#28465c";fctx.stroke();fctx.fillStyle="#eaf5ff";fctx.font="700 10px Inter";fctx.textAlign="center";fctx.fillText(n.t,n.x,n.y+4)});
+  const progress=(t%2800)/2800;const x=nodes[0].x+(nodes[nodes.length-1].x-nodes[0].x)*progress;fctx.beginPath();fctx.arc(x,nodes[0].y,6,0,Math.PI*2);fctx.fillStyle="#62f4ae";fctx.shadowBlur=18;fctx.shadowColor="#62f4ae";fctx.fill();fctx.shadowBlur=0;
+  fctx.fillStyle="#668096";fctx.font="10px 'DM Mono'";fctx.fillText("request",w*.18,h*.5-55);fctx.fillText("metadata",w*.40,h*.5-55);fctx.fillText("direct data path",w*.63,h*.5-55);fctx.fillText("object bytes",w*.84,h*.5-55);
+  requestAnimationFrame(drawFlow)}requestAnimationFrame(drawFlow);
+
+/* ---------- Modal 3D with fallback ---------- */
+let modalReady=false;
+function initModal3D(){if(modalReady)return;modalReady=true;const c=$("#modalCanvas");if(!makeThreeScene(c,"modal"))fallbackCanvas(c,"modal")}
+})();
+</script>
+</body>
+</html>

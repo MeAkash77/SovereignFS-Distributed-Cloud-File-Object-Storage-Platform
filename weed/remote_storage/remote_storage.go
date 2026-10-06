@@ -1,0 +1,196 @@
+package remote_storage
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/seaweedfs/seaweedfs/weed/pb/filer_pb"
+	"github.com/seaweedfs/seaweedfs/weed/pb/remote_pb"
+	"google.golang.org/protobuf/proto"
+)
+
+const slash = "/"
+
+func ParseLocationName(remote string) (locationName string) {
+	remote = strings.TrimSuffix(remote, slash)
+	parts := strings.SplitN(remote, slash, 2)
+	if len(parts) >= 1 {
+		return parts[0]
+	}
+	return
+}
+
+func parseBucketLocation(remote string) (loc *remote_pb.RemoteStorageLocation) {
+	loc = &remote_pb.RemoteStorageLocation{}
+	remote = strings.TrimSuffix(remote, slash)
+	parts := strings.SplitN(remote, slash, 3)
+	if len(parts) >= 1 {
+		loc.Name = parts[0]
+	}
+	if len(parts) >= 2 {
+		loc.Bucket = parts[1]
+	}
+	loc.Path = remote[len(loc.Name)+1+len(loc.Bucket):]
+	if loc.Path == "" {
+		loc.Path = slash
+	}
+	return
+}
+
+func parseNoBucketLocation(remote string) (loc *remote_pb.RemoteStorageLocation) {
+	loc = &remote_pb.RemoteStorageLocation{}
+	remote = strings.TrimSuffix(remote, slash)
+	parts := strings.SplitN(remote, slash, 2)
+	if len(parts) >= 1 {
+		loc.Name = parts[0]
+	}
+	loc.Path = remote[len(loc.Name):]
+	if loc.Path == "" {
+		loc.Path = slash
+	}
+	return
+}
+
+func FormatLocation(loc *remote_pb.RemoteStorageLocation) string {
+	if loc.Bucket == "" {
+		return fmt.Sprintf("%s%s", loc.Name, loc.Path)
+	}
+	return fmt.Sprintf("%s/%s%s", loc.Name, loc.Bucket, loc.Path)
+}
+
+type VisitFunc func(dir string, name string, isDirectory bool, remoteEntry *filer_pb.RemoteEntry) error
+
+// EntryContentEncoding returns the Content-Encoding stored in the entry
+// extended attributes, for clients to set on uploaded remote objects.
+func EntryContentEncoding(entry *filer_pb.Entry) string {
+	if entry == nil {
+		return ""
+	}
+	return string(entry.Extended["Content-Encoding"])
+}
+
+type Bucket struct {
+	Name      string
+	CreatedAt time.Time
+}
+
+// ErrRemoteObjectNotFound is returned by StatFile when the object does not exist in the remote storage backend.
+var ErrRemoteObjectNotFound = errors.New("remote object not found")
+
+type RemoteStorageClient interface {
+	Traverse(loc *remote_pb.RemoteStorageLocation, visitFn VisitFunc) error
+	ListDirectory(ctx context.Context, loc *remote_pb.RemoteStorageLocation, visitFn VisitFunc) error
+	StatFile(loc *remote_pb.RemoteStorageLocation) (remoteEntry *filer_pb.RemoteEntry, err error)
+	ReadFile(loc *remote_pb.RemoteStorageLocation, offset int64, size int64) (data []byte, err error)
+	WriteDirectory(loc *remote_pb.RemoteStorageLocation, entry *filer_pb.Entry) (err error)
+	RemoveDirectory(loc *remote_pb.RemoteStorageLocation) (err error)
+	WriteFile(loc *remote_pb.RemoteStorageLocation, entry *filer_pb.Entry, reader io.Reader) (remoteEntry *filer_pb.RemoteEntry, err error)
+	UpdateFileMetadata(loc *remote_pb.RemoteStorageLocation, oldEntry *filer_pb.Entry, newEntry *filer_pb.Entry) (err error)
+	DeleteFile(loc *remote_pb.RemoteStorageLocation) (err error)
+	ListBuckets() ([]*Bucket, error)
+	CreateBucket(name string) (err error)
+	DeleteBucket(name string) (err error)
+}
+
+// RemoteStorageConcurrentReader is an optional interface for remote storage clients
+// that support configurable download concurrency for multipart downloads.
+type RemoteStorageConcurrentReader interface {
+	ReadFileWithConcurrency(loc *remote_pb.RemoteStorageLocation, offset int64, size int64, concurrency int) (data []byte, err error)
+}
+
+// RemoteStorageStreamReader is an optional interface for remote storage clients
+// that support streaming reads with io.Reader for efficient memory usage.
+type RemoteStorageStreamReader interface {
+	ReadFileAsStream(ctx context.Context, loc *remote_pb.RemoteStorageLocation, offset int64, size int64) (reader io.ReadCloser, err error)
+}
+
+// CacheWaitTimeout is how long a read of an uncached remote-only object waits
+// for the local cache before serving another way: small files wait longer since
+// their cache completes quickly, large files fail fast for better TTFB. A mount
+// carrying cache_wait_ms replaces the size tiers, and 0 means never wait.
+func CacheWaitTimeout(remoteSize int64, mountedLocation *remote_pb.RemoteStorageLocation) time.Duration {
+	if mountedLocation != nil && mountedLocation.CacheWaitMs != nil {
+		return max(0, time.Duration(*mountedLocation.CacheWaitMs)*time.Millisecond)
+	}
+	switch {
+	case remoteSize > 500*1024*1024:
+		return 2 * time.Second
+	case remoteSize > 0 && remoteSize < 50*1024*1024:
+		return 10 * time.Second
+	default:
+		return 5 * time.Second
+	}
+}
+
+type RemoteStorageClientMaker interface {
+	Make(remoteConf *remote_pb.RemoteConf) (RemoteStorageClient, error)
+	HasBucket() bool
+}
+
+type CachedRemoteStorageClient struct {
+	*remote_pb.RemoteConf
+	RemoteStorageClient
+}
+
+var (
+	RemoteStorageClientMakers = make(map[string]RemoteStorageClientMaker)
+	remoteStorageClients      = make(map[string]CachedRemoteStorageClient)
+	remoteStorageClientsLock  sync.Mutex
+)
+
+func GetAllRemoteStorageNames() string {
+	var storageNames []string
+	for k := range RemoteStorageClientMakers {
+		storageNames = append(storageNames, k)
+	}
+	sort.Strings(storageNames)
+	return strings.Join(storageNames, "|")
+}
+
+func ParseRemoteLocation(remoteConfType string, remote string) (remoteStorageLocation *remote_pb.RemoteStorageLocation, err error) {
+	maker, found := RemoteStorageClientMakers[remoteConfType]
+	if !found {
+		return nil, fmt.Errorf("remote storage type %s not found", remoteConfType)
+	}
+
+	if !maker.HasBucket() {
+		return parseNoBucketLocation(remote), nil
+	}
+	return parseBucketLocation(remote), nil
+}
+
+func makeRemoteStorageClient(remoteConf *remote_pb.RemoteConf) (RemoteStorageClient, error) {
+	maker, found := RemoteStorageClientMakers[remoteConf.Type]
+	if !found {
+		return nil, fmt.Errorf("remote storage type %s not found", remoteConf.Type)
+	}
+	return maker.Make(remoteConf)
+}
+
+func GetRemoteStorage(remoteConf *remote_pb.RemoteConf) (RemoteStorageClient, error) {
+	remoteStorageClientsLock.Lock()
+	defer remoteStorageClientsLock.Unlock()
+
+	existingRemoteStorageClient, found := remoteStorageClients[remoteConf.Name]
+	if found && proto.Equal(existingRemoteStorageClient.RemoteConf, remoteConf) {
+		return existingRemoteStorageClient.RemoteStorageClient, nil
+	}
+
+	newRemoteStorageClient, err := makeRemoteStorageClient(remoteConf)
+	if err != nil {
+		return nil, fmt.Errorf("make remote storage client %s: %v", remoteConf.Name, err)
+	}
+
+	remoteStorageClients[remoteConf.Name] = CachedRemoteStorageClient{
+		RemoteConf:          remoteConf,
+		RemoteStorageClient: newRemoteStorageClient,
+	}
+
+	return newRemoteStorageClient, nil
+}
