@@ -138,7 +138,7 @@ sequenceDiagram
 
 ### 🛟 Surviving failures
 
-<img src="assets/failover-animation.svg" width="100%" alt="Animated failover: Server A fails, Server B takes over"/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/failover-animation.svg" width="100%" alt="Animated failover: Server A fails, Server B takes over"/>
 
 <img src="assets/divider.svg" width="100%" alt=""/>
 
