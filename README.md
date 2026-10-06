@@ -35,7 +35,7 @@
 | **How it ships** | Packaged for **Docker**, **Docker Compose**, **Kubernetes (Helm)** and **Terraform (AWS)**, with Prometheus metrics, an Admin UI, and 70+ automated CI pipelines. |
 | **Skills demonstrated** | Distributed systems · Go · Cloud infrastructure · Kubernetes · DevOps/CI-CD · API design (S3) · Fault tolerance · Observability |
 
-<img src="assets/stats-cards.svg" width="100%" alt="Project statistics: 3,100+ Go files, 1,400+ test files, 70+ CI pipelines, O(1) reads"/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/stats-cards.svg" width="100%" alt="Project statistics: 3,100+ Go files, 1,400+ test files, 70+ CI pipelines, O(1) reads"/>
 
 <img src="assets/divider.svg" width="100%" alt=""/>
 
