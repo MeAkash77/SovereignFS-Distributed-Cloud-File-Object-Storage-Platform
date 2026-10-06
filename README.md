@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/hero-banner.svg" alt="SovereignFS — Distributed Cloud File & Object Storage Platform" width="100%"/>
+<img src="https://github.com/MeAkash77/SovereignFS-Distributed-Cloud-File-Object-Storage-Platform/blob/main/hero-banner.svg" alt="SovereignFS — Distributed Cloud File & Object Storage Platform" width="100%"/>
 
 <br/>
 
